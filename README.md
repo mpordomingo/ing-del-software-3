@@ -1,1 +1,1 @@
-Minimun viable product Software Engineering III course at UCA. 2020.
+Minimun viable product for Software Engineering III course at UCA. 2020.
