@@ -1,4 +1,7 @@
-Feature:
+Feature: Consulta y filtrado de tareas
+  Como trabajador, quiero consultar las tareas y filtrarlas por atributos
+  codigo, descripcion, estado, asignacion y tiempos para poder organizar mi trabajo.
+
   Scenario: filtrar por codigo de tarea
     Given soy empleado
     When filtro las tareas por codigo
@@ -7,14 +10,15 @@ Feature:
   Scenario: filtrar por descripcion de tarea
     Given soy empleado
     When filtro por descripcion de tarea
-    Then se me muestran las tareas que contienen la descripcion indicada
+    Then se muestran las tareas que contienen la descripcion indicada
 
+  Scenario: filtrar por estado de la tarea
+    Given soy empleado
+    When filtro por estado de la tarea
+    Then se muestran las tareas que estan en el estado indicado
 
+  Scenario:
+    Given soy empleado
+    When consulto tareas y no se encuentra ninguna
+    Then se muestra una advertencia indicando esta situacion
 
-#Dado que soy un trabajador, cuando filtro por código para consultar una tarea, entonces se muestra la tarea correspondiente al código indicado.
-
-#Dado que soy un trabajador, cuando filtro por descripción para consultar las tareas, entonces se muestran las tareas que contienen la descripción indicada.
-
-#Dado que soy un trabajador, cuando filtro por estado en la consulta de tareas, entonces se muestran las tareas que se encuentran en  el estado indicado.
-
-#Dado que soy trabajador, cuando consulto tareas que no me estan asignadas, entonces se me muestra una advertencia indicando esta situación.

@@ -1,4 +1,5 @@
 Feature: dar tarea de alta
+  Como empleado, quiero dar una tarea de alta cuando gestiono mis tareas para poder organizar mi trabajo.
 
   Scenario: Dar tarea de alta
     Given soy empleado
