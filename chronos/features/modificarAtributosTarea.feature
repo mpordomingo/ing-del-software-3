@@ -3,5 +3,5 @@ Feature: Modificar atributos de una tarea
 
   Scenario: Modificar descripcion de una tarea
     Given soy empleado
-    When modifico los atirbutos descripcion, estado y tiempos de la tarea
+    When modifico los atributos descripcion, estado y tiempos de la tarea
     Then se registran los cambios

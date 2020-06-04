@@ -31,7 +31,7 @@ def step_impl(context):
     pass
 
 
-@then ('se muestran las tareas que contienen la descripcion indicada')
+@then('se muestran las tareas que contienen la descripcion indicada')
 def step_impl(context):
     pass
 
