@@ -30,7 +30,6 @@ def step_impl(context):
     taskSet.delete()
 
 
-
 @when('filtro las tareas por codigo')
 def step_impl(context):
     pass
