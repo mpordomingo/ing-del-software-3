@@ -71,11 +71,21 @@ def step_impl(context):
     pass
 
 
-@when('modifico los atirbutos descripcion, estado y tiempos de la tarea')
+@when('I modify the attributes description, status and times of the task')
+def step_impl(context):
+    taskUpdate = Task.tasks.filter(title="Implementar PSA Cloud Spring ERP para cliente ", projectId=1).update(state='Done')
+    taskUpdate.save()
+
+@then ('changes are recorded')
+def step_impl(context):
+    taskSet = Task.tasks.filter(title="Implementar PSA Cloud Spring ERP para cliente ", projectId=1)
+    assert (taskSet.first() is not None) and (taskSet.first().state == 'Done')
+    taskSet.delete()
+
+@when('I assign invalid attributes -invalid states or times-')
 def step_impl(context):
     pass
 
-
-@then ('se registran los cambios')
+@then ('I get a notification of the situation')
 def step_impl(context):
     pass
