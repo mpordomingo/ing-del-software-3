@@ -26,7 +26,7 @@ SECRET_KEY = 'dhdv9tzrqpfj14_3%yk9h2&n1d$a%or68mm^2!9^rch@p(sect'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['is3-psa-project.herokuapp.com']
+ALLOWED_HOSTS = ['is3-psa-project.herokuapp.com', '127.0.0.1']
 
 
 # Application definition
@@ -48,6 +48,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
 
 ROOT_URLCONF = 'mvp.urls'
