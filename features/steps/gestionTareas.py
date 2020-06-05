@@ -10,19 +10,18 @@ def step_impl(context):
 
 @when('cuando doy una tarea de alta')
 def step_impl(context):
-    task = Task(code=10,
-                title="Implementar PSA Cloud Spring ERP para cliente ",
-                descripcion="Coordinar con el cliente la implementacion de PSA Cloud Spring ERP y relevar sus necesidades.",
+    task = Task(title="Implementar PSA Cloud Spring ERP para cliente ",
+                description="Coordinar con el cliente la implementacion de PSA Cloud Spring ERP y relevar sus necesidades.",
                 state="To Do",
-                asigneeId=2,
+                assigneeId=2,
                 projectId=1)
     task.save()
 
 
 @then('se registra la tarea y se vincula a un proyecto-inciativa-tema')
 def step_impl(context):
-    taskSet = Task.tasks.filter(code=10, projectId=1).first()
-    assert taskSet is not None and taskSet.projectId == 1
+    taskSet = Task.tasks.filter(title="Implementar PSA Cloud Spring ERP para cliente ", projectId=1).first()
+    assert (taskSet is not None) and (taskSet.projectId == 1)
 
 
 
