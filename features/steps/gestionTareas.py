@@ -8,12 +8,12 @@ def step_impl(context):
     pass
 
 
-@given('a user wants to add a task with the following values')
+@given('a user wants to add a task')
 def step_impl(context):
     pass
 
 
-@when('the user adds the task')
+@when('the user adds the task with the following values')
 def step_impl(context):
     task = Task(title=context.table[0]['title'],
                 description=context.table[0]['description'],
