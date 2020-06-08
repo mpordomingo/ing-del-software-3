@@ -22,7 +22,7 @@ def step_impl(context):
     task.save()
 
 
-@then('the task is saved and linked to a project or initiative')
+@then('the task is saved')
 def step_impl(context):
     taskSet = Task.tasks.filter(code=context.task.code)
     assert taskSet.first() is not None

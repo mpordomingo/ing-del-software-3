@@ -14,4 +14,3 @@ class Task(models.Model):
     state = models.CharField(default="To Do", max_length=15, choices=VALID_STATES)
 
     tasks = models.Manager()
-

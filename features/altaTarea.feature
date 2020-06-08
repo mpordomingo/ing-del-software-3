@@ -7,4 +7,4 @@ Feature: add a task
      | title                                         | description                                                                                   | state |
      | Implementar PSA Cloud Spring ERP para cliente | Coordinar con el cliente la implementacion de PSA Cloud Spring ERP y relevar sus necesidades. | To Do |
 
-    Then the task is saved and linked to a project or initiative
+    Then the task is saved
