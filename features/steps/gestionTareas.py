@@ -1,6 +1,6 @@
 from behave import *
 
-from chronos.models import Task
+from chronos.models import *
 
 
 @given('soy empleado')
@@ -8,26 +8,26 @@ def step_impl(context):
     pass
 
 
-@given('I am an employee')
+@given('a user wants to add a task with the following values')
 def step_impl(context):
     pass
 
 
-@when('I add a task')
+@when('the user adds the task')
 def step_impl(context):
-    task = Task(title="Implementar PSA Cloud Spring ERP para cliente ",
-                description="Coordinar con el cliente la implementacion de PSA Cloud Spring ERP y relevar sus necesidades.",
-                state="To Do",
-                assigneeId=2,
-                projectId=1)
+    task = Task(title=context.table[0]['title'],
+                description=context.table[0]['description'],
+                state=context.table[0]['state'])
+    context.task = task
     task.save()
 
 
 @then('the task is saved and linked to a project or initiative')
 def step_impl(context):
-    taskSet = Task.tasks.filter(title="Implementar PSA Cloud Spring ERP para cliente ", projectId=1)
-    assert (taskSet.first() is not None) and (taskSet.first().projectId == 1)
+    taskSet = Task.tasks.filter(code=context.task.code)
+    assert taskSet.first() is not None
     taskSet.delete()
+
 
 
 @when('filtro las tareas por codigo')
