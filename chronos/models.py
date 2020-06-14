@@ -9,8 +9,12 @@ class Task(models.Model):
     ]
 
     code = models.AutoField(null=False, primary_key=True)
-    title = models.CharField(default="", max_length=255)
+    title = models.CharField(null=False, blank=False, max_length=255)
     description = models.CharField(default="", null=False, max_length=255)
     state = models.CharField(default="To Do", max_length=15, choices=VALID_STATES)
 
     tasks = models.Manager()
+
+    def save(self, *arg, **args):
+        assert self.title, "Se debe especificar un titulo para la tarea."
+        super().save(*args, **args)
