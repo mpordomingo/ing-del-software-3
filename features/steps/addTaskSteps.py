@@ -95,3 +95,33 @@ def step_impl(context):
 @then('a warning is shown indicating the task cannot be created')
 def step_impl(context):
     assert context.exception == context.expectedWarning
+
+
+
+
+@given('a user wants to add a task with an invalid state')
+def step_impl(context):
+    pass
+
+
+@given('the following warning and invalid state')
+def step_impl(context):
+    context.expectedWarning = context.table[0]['warning']
+    context.invalidState = context.table[0]['invalid state']
+
+
+@when('the user adds the task with the invalid state')
+def step_impl(context):
+    context.exception = ""
+    try:
+        task = Task(title=context.samples[0]['title'], state=context.invalidState)
+        context.task = task
+        task.save()
+    except Exception as e:
+        context.exception = str(e)
+
+
+@then('an invalid state warning is shown')
+def step_impl(context):
+    print(context.exception)
+    assert context.exception == context.expectedWarning

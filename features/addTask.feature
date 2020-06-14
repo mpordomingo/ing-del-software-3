@@ -27,6 +27,7 @@ Feature: add a task
     When the user adds the task with the title and description values
     Then the task is saved with the title, a description and the default state
 
+
   Scenario: Add a task without title
     Given a user wants to add a task without specifying a title
     Given the following required state warning
@@ -34,3 +35,12 @@ Feature: add a task
     | Se debe especificar un titulo para la tarea. |
     When the user adds the task without the title
     Then a warning is shown indicating the task cannot be created
+
+
+  Scenario: Add a task with invalid state
+    Given a user wants to add a task with an invalid state
+    Given the following warning and invalid state
+    | warning                             | invalid state    |
+    | El estado especificado no es valido | an invalid state |
+    When the user adds the task with the invalid state
+    Then an invalid state warning is shown
