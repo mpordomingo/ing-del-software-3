@@ -8,7 +8,6 @@ def step_impl(context):
     pass
 
 
-
 @when('the user adds the task with all the values')
 def step_impl(context):
     task = Task(title=context.samples[0]['title'],
@@ -28,6 +27,7 @@ def step_impl(context):
 @given("a user wants to add a task without description or state")
 def step_impl(context):
     pass
+
 
 @when('the user adds the task with the title value only')
 def step_impl(context):
@@ -97,8 +97,6 @@ def step_impl(context):
     assert context.exception == context.expectedWarning
 
 
-
-
 @given('a user wants to add a task with an invalid state')
 def step_impl(context):
     pass
@@ -123,5 +121,5 @@ def step_impl(context):
 
 @then('an invalid state warning is shown')
 def step_impl(context):
-    print(context.exception)
     assert context.exception == context.expectedWarning
+
