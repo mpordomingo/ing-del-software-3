@@ -10,7 +10,7 @@ class TaskController:
         if len(task_set) == 1:
             return task_set.first()
         else:
-            return "No se econtro una tarea para ese codigo."
+            return "No se encontro una tarea para ese codigo."
 
     @staticmethod
     def filter_by_description(description):

@@ -39,7 +39,7 @@ Feature: Filter tasks
     When the user filters tasks by code "12345" and none are found
     Then the following warning is shown
     |warning                                 |
-    |No se econtro una tarea para ese codigo.|
+    |No se encontro una tarea para ese codigo.|
 
   Scenario: user filters by description and no tasks are found
     Given a user
