@@ -1,45 +1,75 @@
 from behave import *
 
+from chronos.controllers.taskController import TaskController
 from chronos.models import *
 
 
-@when('filtro las tareas por codigo')
+@given("a set of tasks")
 def step_impl(context):
-    pass
+    tasks = []
+    for row in context.table:
+        task = Task(title=row['title'], description=row['description'], state=row['state'])
+        task.save()
+        tasks.append(task)
+    context.tasks = tasks
 
-
-@then('se muestra la tarea correspondiente al codigo indicado')
+@given("no tasks are stored")
 def step_impl(context):
-    pass
+    Task.tasks.all().delete()
 
-
-@when('filtro por descripcion de tarea')
+@when("the user filters tasks by code")
 def step_impl(context):
-    pass
+    code = context.tasks[0].code
+    context.searchResult = TaskController.filter_by_code(code=code)
 
 
-@then('se muestran las tareas que contienen la descripcion indicada')
+@then("the task with that code is shown")
 def step_impl(context):
-    pass
+    assert context.searchResult is not None \
+           and context.searchResult.code == context.tasks[0].code
+    context.searchResult.delete()
 
 
-@when('filtro por estado de la tarea')
+@when("the user filters tasks by description")
 def step_impl(context):
-    pass
+    context.searchResult = TaskController.filter_by_description(description=context.table[0]['description'])
 
 
-@then('se muestran las tareas que estan en el estado indicado')
+
+@then("tasks with that description are shown")
 def step_impl(context):
-    pass
+    assert context.searchResult is not None and len(context.searchResult) == int(context.table[0]['results quantity'])
+    context.searchResult.delete()
 
 
-@when('consulto tareas y no se encuentra ninguna')
+@when('the user filters by tasks in "{state}" state')
+def step_impl(context, state):
+    context.searchResult = TaskController.filter_by_state(state=state)
+
+
+@then('{quantity} tasks with that state are shown')
+def step_impl(context, quantity):
+    print(list(context.searchResult))
+    assert context.searchResult is not None and len(context.searchResult) == int(quantity)
+    context.searchResult.delete()
+
+
+@when('the user filters tasks by code "{code}" and none are found')
+def step_impl(context, code):
+    context.searchResult = TaskController.filter_by_code(code=code)
+
+
+@then('the following warning is shown')
 def step_impl(context):
-    pass
+    print(list(context.searchResult))
+    assert context.searchResult is not None and context.searchResult == context.table[0]['warning']
 
 
-@then('se muestra una advertencia indicando esta situacion')
-def step_impl(context):
-    pass
+@when('the user filters tasks by description "{description}" and none are found')
+def step_impl(context, description):
+    context.searchResult = TaskController.filter_by_description(description=description)
 
 
+@when('the user filters tasks by state "{state}" and none are found')
+def step_impl(context, state):
+    context.searchResult = TaskController.filter_by_state(state=state)
