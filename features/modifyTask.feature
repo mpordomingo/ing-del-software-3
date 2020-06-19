@@ -14,7 +14,11 @@ Feature: Modify task attributes
     Then changes are recorded
 
   Scenario: Assign invalid attributes
-    Given I am an employee
-    When I assign invalid attributes -invalid states or times-
-    Then I get a notification of the situation
+    Given I am an employee with a task that consists of the following values
+     | title                                         | description                                                                                   | state |
+    | Implementar PSA Cloud Spring ERP para cliente | Coordinar con el cliente la implementacion de PSA Cloud Spring ERP y relevar sus necesidades. | To Do |
+    When I assign the following invalid state
+    | state |
+    | Not Done |
+    Then I get a notification of the wrong state
 
