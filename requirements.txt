@@ -24,3 +24,6 @@ urllib3==1.25.9
 wcwidth==0.2.3
 whitenoise==5.0.1
 zipp==3.1.0
+djangorestframework==3.11.0
+markdown==3.2.2
+django-filter==2.3.0
