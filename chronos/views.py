@@ -3,6 +3,12 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from chronos.models import Task
 from chronos.serializers import TaskSerializer
+from django.http import HttpResponse
+
+
+def index(request):
+    return HttpResponse("Bienvenido a Chronos App:)")
+
 
 @api_view(['GET', 'POST'])
 def task_list(request):
@@ -20,6 +26,7 @@ def task_list(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def task_detail(request, pk):
