@@ -17,8 +17,9 @@ class Task(models.Model):
 
     tasks = models.Manager()
 
-    def valid_states(self):
-        return list(map((lambda x: x[1]), self.__VALID_STATES__))
+    @staticmethod
+    def valid_states():
+        return list(map((lambda x: x[1]), Task.__VALID_STATES__))
 
     def save(self, *arg, **args):
         assert self.title, "Se debe especificar un titulo para la tarea."

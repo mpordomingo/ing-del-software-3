@@ -13,9 +13,11 @@ def step_impl(context):
         tasks.append(task)
     context.tasks = tasks
 
+
 @given("no tasks are stored")
 def step_impl(context):
     Task.tasks.all().delete()
+
 
 @when("the user filters tasks by code")
 def step_impl(context):
@@ -33,7 +35,6 @@ def step_impl(context):
 @when("the user filters tasks by description")
 def step_impl(context):
     context.searchResult = TaskController.filter_by_description(description=context.table[0]['description'])
-
 
 
 @then("tasks with that description are shown")
