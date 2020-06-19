@@ -30,11 +30,17 @@ def step_impl(context):
     taskSet.delete()
 
 
-@when('I assign invalid attributes -invalid states or times-')
+@when('I assign the following invalid state')
 def step_impl(context):
-    pass
+    task = context.task
+    task.state = context.table[0]['state']
+    context.testData = context.table[0]
+    context.exception = ""
+    try:
+        task.save()
+    except Exception as e:
+        context.exception = str(e)
 
-
-@then ('I get a notification of the situation')
+@then ('I get a notification of the wrong state')
 def step_impl(context):
-    pass
+     assert context.exception == 'El estado especificado no es valido'
