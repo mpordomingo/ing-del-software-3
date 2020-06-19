@@ -1,7 +1,7 @@
 from chronos.models import Task
 from rest_framework import serializers
 
-class TaskSerializer(serializers.HyperlinkedModelSerializer):
+class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ['id', 'code', 'title', 'description', 'state']
+        fields = ['title', 'description', 'state']

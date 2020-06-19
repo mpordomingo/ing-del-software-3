@@ -16,12 +16,3 @@ class Task(models.Model):
     state = models.CharField(default="To Do", max_length=15, choices=__VALID_STATES__)
 
     tasks = models.Manager()
-
-    @staticmethod
-    def valid_states():
-        return list(map((lambda x: x[1]), Task.__VALID_STATES__))
-
-    def save(self, *arg, **args):
-        assert self.title, "Se debe especificar un titulo para la tarea."
-        assert self.state in self.valid_states(), "El estado especificado no es valido"
-        super().save(*args, **args)
