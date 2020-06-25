@@ -18,8 +18,6 @@ class Task(models.Model):
 
     tasks = models.Manager()
 
-    timeRecord = models.Manager()
-
     @staticmethod
     def valid_states():
         return list(map((lambda x: x[1]), Task.__VALID_STATES__))
