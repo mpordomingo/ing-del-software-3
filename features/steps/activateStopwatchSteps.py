@@ -2,15 +2,32 @@ from behave import *
 from chronos.models import *
 from chronos.controllers.taskController import TaskController
 import time
-@given('that I am about to start a task')
+import datetime
+
+
+@given('that I am about to work on a task')
 def step_impl(context):
     context.searchResult = TaskController.filter_by_code(code=1)
 
-@when('I select the task and start the stopwatch for 5 seconds')
+
+@when('I use the stopwatch for 5 seconds')
 def step_impl(context):
-    stopwatch = Stopwatch(breakTime=time.time()+5, recordedTime=0)
+    stopwatch = Stopwatch()
     stopwatch.start()
-    pass
-@then('time begins to be measured until the break')
+    time.sleep(5)
+    stopwatch.stop()
+    context.stopwatch = stopwatch
+    assert int(stopwatch.recordedTime) == 5
+
+
+@then('it is save in the TimeRecord')
 def step_impl(context):
-    pass
+    init = time.localtime(context.stopwatch.initialTime)
+    finish = time.localtime(context.stopwatch.initialTime + context.stopwatch.recordedTime)
+    record = TimeRecord(startTime=datetime.time(init.tm_hour, init.tm_min, init.tm_sec),
+                        endTime=datetime.time(finish.tm_hour, finish.tm_min, finish.tm_sec),
+                        date=datetime.date(init.tm_year, init.tm_mon, init.tm_mday))
+    record.save()
+    assert record.startTime == datetime.time(init.tm_hour, init.tm_min, init.tm_sec) and \
+           record.endTime == datetime.time(finish.tm_hour, finish.tm_min, finish.tm_sec) and \
+           record.date == datetime.date(init.tm_year, init.tm_mon, init.tm_mday)

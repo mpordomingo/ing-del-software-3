@@ -29,12 +29,27 @@ class Task(models.Model):
 
 
 class Stopwatch(models.Model):
-    breakTime = models.IntegerField()
-    recordedTime = models.IntegerField()
+    recordedTime: float = models.FloatField()
+    initialTime: float = 0
+    initialInactivity: float = 0
+    inactivityTime: float = 0
 
     def start(self):
-        now = time.time()
-        meassure_time = 0
-        while time.time() < self.breakTime:
-            pass
-        self.recordedTime = self.breakTime
+        self.initialTime = time.time()
+
+    def stop(self):
+        now: float = time.time()
+        self.recordedTime = now - self.initialTime - self.inactivityTime
+
+    def pause(self):
+        self.initialInactivity = time.time()
+
+    def resume(self):
+        now: float = time.time()
+        self.inactivityTime += now - self.initialInactivity
+
+
+class TimeRecord(models.Model):
+    startTime = models.TimeField()
+    endTime = models.TimeField()
+    date = models.DateField()
