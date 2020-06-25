@@ -12,21 +12,37 @@ def step_imp(context):
     task.save()
 
 
-@when('I modify the description and status of the task')
+@when('I modify the description of the task')
 def step_impl(context):
     task = context.task
     task.description = context.table[0]['description']
+    context.testData = context.table[0]
+    task.save()
+
+
+@when('I modify the state of the task')
+def step_impl(context):
+    task = context.task
     task.state = context.table[0]['state']
     context.testData = context.table[0]
     task.save()
 
 
-@then('changes are recorded')
+@then('change in the description of the task is recorded')
 def step_impl(context):
     taskSet = Task.tasks.filter(code=context.task.code)
     task = taskSet.first()
     testData = context.testData
-    assert task is not None and task.state == testData['state'] and task.description == testData['description']
+    assert task is not None and task.description == testData['description']
+    taskSet.delete()
+
+
+@then('change in the state of the task is recorded')
+def step_impl(context):
+    taskSet = Task.tasks.filter(code=context.task.code)
+    task = taskSet.first()
+    testData = context.testData
+    assert task is not None and task.state == testData['state']
     taskSet.delete()
 
 
@@ -41,6 +57,7 @@ def step_impl(context):
     except Exception as e:
         context.exception = str(e)
 
-@then ('I get a notification of the wrong state')
+
+@then('I get a notification of the wrong state')
 def step_impl(context):
-     assert context.exception == 'El estado especificado no es valido'
+    assert context.exception == 'El estado especificado no es valido'

@@ -6,16 +6,23 @@ Feature: Modify task attributes
     Given I am an employee with a task that consists of the following values
     | title                                         | description                                                                                   | state |
     | Implementar PSA Cloud Spring ERP para cliente | Coordinar con el cliente la implementacion de PSA Cloud Spring ERP y relevar sus necesidades. | To Do |
+    When I modify the description of the task
+    | description                                                                                   |
+    | Coordinar con el cliente la prueba del sistema PSA Cloud Spring ERP.                          |
+    Then change in the description of the task is recorded
 
-    When I modify the description and status of the task
-    | description                                                                                   | state |
-    | Coordinar con el cliente la prueba del sistema PSA Cloud Spring ERP.                          | In Progress |
-
-    Then changes are recorded
+  Scenario: Modify task state
+    Given I am an employee with a task that consists of the following values
+    | title                                         | description                                                                                   | state |
+    | Implementar PSA Cloud Spring ERP para cliente | Coordinar con el cliente la implementacion de PSA Cloud Spring ERP y relevar sus necesidades. | To Do |
+    When I modify the state of the task
+    | state |
+    | In Progress |
+    Then change in the state of the task is recorded
 
   Scenario: Assign invalid attributes
     Given I am an employee with a task that consists of the following values
-     | title                                         | description                                                                                   | state |
+    | title                                         | description                                                                                   | state |
     | Implementar PSA Cloud Spring ERP para cliente | Coordinar con el cliente la implementacion de PSA Cloud Spring ERP y relevar sus necesidades. | To Do |
     When I assign the following invalid state
     | state |
