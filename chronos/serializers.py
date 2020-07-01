@@ -12,3 +12,10 @@ class TaskSerializer(serializers.Serializer):
         task = Task(**validated_data)
         task.save()
         return task
+
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get('title', instance.title)
+        instance.description = validated_data.get('description', instance.description)
+        instance.state = validated_data.get('state', instance.state)
+        instance.save()
+        return instance
