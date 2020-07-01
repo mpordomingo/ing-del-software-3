@@ -148,11 +148,11 @@ CORS_ORIGIN_ALLOW_ALL = True # If this is used then `CORS_ORIGIN_WHITELIST` will
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:3030',
-    'https://chronos-psa-is3-uca.herokuapp.com/'
+    'https://chronos-psa-is3-uca.herokuapp.com'
 ] # If this is used, then not need to use `CORS_ORIGIN_ALLOW_ALL = True`
 CORS_ORIGIN_REGEX_WHITELIST = [
     'http://localhost:3030',
-    'https://chronos-psa-is3-uca.herokuapp.com/'
+    'https://chronos-psa-is3-uca.herokuapp.com'
 
 ]
 CORS_ALLOW_HEADERS = [
