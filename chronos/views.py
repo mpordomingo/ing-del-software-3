@@ -30,16 +30,16 @@ def task_list(request):
                 return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-def task_detail(request, pk):
+def task_detail(request, code):
     """
     Retrieve, update or delete a code task.
     """
     try:
-        task = Task.tasks.get(pk=pk)
+        task = Task.tasks.filter(code=code).first()
     except Task.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -48,12 +48,18 @@ def task_detail(request, pk):
         return Response(serializer.data)
 
     elif request.method == 'PUT':
-        serializer = TaskSerializer(task, data=data)
+        serializer = TaskSerializer(task, data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                serializer.save()
+            except Exception as e:
+                return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     elif request.method == 'DELETE':
-        task.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        try:
+            task.delete()
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_200_OK)
