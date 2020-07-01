@@ -26,7 +26,7 @@ SECRET_KEY = 'dhdv9tzrqpfj14_3%yk9h2&n1d$a%or68mm^2!9^rch@p(sect'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['is3-psa-project.herokuapp.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['chronos-backend-is3-uca.herokuapp.com', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -148,9 +148,12 @@ CORS_ORIGIN_ALLOW_ALL = True # If this is used then `CORS_ORIGIN_WHITELIST` will
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:3030',
+    'https://chronos-psa-is3-uca.herokuapp.com/'
 ] # If this is used, then not need to use `CORS_ORIGIN_ALLOW_ALL = True`
 CORS_ORIGIN_REGEX_WHITELIST = [
     'http://localhost:3030',
+    'https://chronos-psa-is3-uca.herokuapp.com/'
+
 ]
 CORS_ALLOW_HEADERS = [
     'accept',
