@@ -15,6 +15,7 @@ def task_list(request):
     """
     List all code tasks, or create a new task.
     """
+
     if request.method == 'GET':
         tasks = Task.tasks.all()
         serializer = TaskSerializer(tasks, many=True)
@@ -24,7 +25,7 @@ def task_list(request):
         serializer = TaskSerializer(data=request.data)
         if serializer.is_valid():
             try:
-                serializer.save()
+                serializer.save();
             except Exception as e:
                 return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
