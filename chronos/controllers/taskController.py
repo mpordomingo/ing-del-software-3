@@ -44,11 +44,11 @@ class TaskController:
 
         tasks = Task.tasks.filter(title__contains=title).filter(description__contains=description)
 
-        if state is not None:
+        if state is not None and state is not "":
             assert state in Task.valid_states(), "El estado no es valido."
             tasks = tasks.filter(state=state)
 
-        if code is not None:
+        if code is not None and code is not "":
             tasks = tasks.filter(code=code)
 
         return tasks
