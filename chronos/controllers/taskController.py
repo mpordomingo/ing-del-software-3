@@ -22,7 +22,7 @@ class TaskController:
 
     @staticmethod
     def filter_by_state(state):
-        assert state in Task.valid_states()
+        assert state in Task.valid_states(), "El estado no es valido."
 
         task_set = Task.tasks.filter(state=state)
         if len(task_set) > 0:
@@ -34,3 +34,21 @@ class TaskController:
     def filter_by_title(title):
         task_set = Task.tasks.filter(title__contains=title)
         return task_set
+
+    @staticmethod
+    def filter_by_params(params):
+        title = params.get('title', '')
+        description = params.get('description', '')
+        state = params.get('state', None)
+        code = params.get('code', None)
+
+        tasks = Task.tasks.filter(title__contains=title).filter(description__contains=description)
+
+        if state is not None:
+            assert state in Task.valid_states(), "El estado no es valido."
+            tasks = tasks.filter(state=state)
+
+        if code is not None:
+            tasks = tasks.filter(code=code)
+
+        return tasks

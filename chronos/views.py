@@ -18,7 +18,11 @@ def task_list(request):
     """
 
     if request.method == 'GET':
-        tasks = Task.tasks.all()
+        try:
+            tasks = TaskController.filter_by_params(request.query_params)
+        except Exception as e:
+            return Response({"message":"Estado invalido"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         serializer = TaskSerializer(tasks, many=True)
         return Response(serializer.data)
 
@@ -26,25 +30,12 @@ def task_list(request):
         serializer = TaskSerializer(data=request.data)
         if serializer.is_valid():
             try:
-                serializer.save();
+                serializer.save()
             except Exception as e:
                 return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-@api_view(['GET'])
-def task_list_by_title(request):
-    if request.title is None:
-        return Response({"message": "Uso incorrecto de la API"}, status=status.HTTP_400_BAD_REQUEST)
-
-    tasks = TaskController.filter_by_title(request.title)
-    serializer = TaskSerializer(tasks, many=True)
-
-    return Response(serializer.data)
-
-
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
