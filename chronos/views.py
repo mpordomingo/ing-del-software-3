@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from chronos.models import Task
 from chronos.serializers import TaskSerializer
 from django.http import HttpResponse
+from chronos.controllers.taskController import TaskController
 
 
 def index(request):
@@ -31,6 +32,19 @@ def task_list(request):
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def task_list_by_title(request):
+    if request.title is None:
+        return Response({"message": "Uso incorrecto de la API"}, status=status.HTTP_400_BAD_REQUEST)
+
+    tasks = TaskController.filter_by_title(request.title)
+    serializer = TaskSerializer(tasks, many=True)
+
+    return Response(serializer.data)
+
+
 
 
 @api_view(['GET', 'PUT', 'DELETE'])

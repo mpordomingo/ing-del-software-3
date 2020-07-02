@@ -29,3 +29,8 @@ class TaskController:
             return task_set
         else:
             return "No se encontraron tareas en ese estado."
+
+    @staticmethod
+    def filter_by_title(title):
+        task_set = Task.tasks.filter(title__contains=title)
+        return task_set
