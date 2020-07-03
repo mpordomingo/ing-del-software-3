@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from chronos.models import Task
+from chronos.models import *
 from chronos.serializers import TaskSerializer
 from django.http import HttpResponse
 from chronos.controllers.taskController import TaskController
@@ -68,3 +68,59 @@ def task_detail(request, code):
         except Exception as e:
             return Response({"message": str(e)}, status=status.HTTP_404_NOT_FOUND)
         return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def start_task(request, code):
+
+    try:
+        task = Task.tasks.filter(code=code).first()
+    except Task.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        try:
+
+            time_record = TimeRecord(task=task, cycle=WorkCycle())
+            time_record.save()
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def pause_task(request, code):
+
+    try:
+        task = Task.tasks.filter(code=code).first()
+    except Task.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        try:
+            task.pause()
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def stop_task(request, code):
+
+    try:
+        task = Task.tasks.filter(code=code).first()
+    except Task.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        try:
+            task.stop()
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        return Response(status=status.HTTP_200_OK)
+
+
+
+
+
+
