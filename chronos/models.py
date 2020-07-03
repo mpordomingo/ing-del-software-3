@@ -68,18 +68,18 @@ class TimeRecord(models.Model):
         super().save(*args, **args)
 
     def start(self):
-        self.startTime = datetime.now().time()
+        self.startTime = datetime.datetime.now().time()
 
     def stop(self):
         assert self.endTime is None, "Este registro de tiempo ya fue finalizado."
-        self.endTime = datetime.now().time()
+        self.endTime = datetime.datetime.now().time()
 
     def ustop(self):
         if self.endTime is None:
-            self.endTime = datetime.now().time()
+            self.endTime = datetime.datetime.now().time()
 
     def time_elapsed(self):
-        if (self.endTime is None) and (self.startTime is None):
+        if (self.endTime is None) or (self.startTime is None):
             return 0
 
         dend = datetime.datetime.combine(datetime.date.today(), self.endTime)
