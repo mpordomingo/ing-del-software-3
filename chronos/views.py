@@ -2,11 +2,12 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from chronos.models import *
-from chronos.serializers import TaskSerializer
+from chronos.serializers import *
 from django.http import HttpResponse
 from chronos.controllers.taskController import TaskController
-from datetime import time
+from time import time
 from datetime import date
+from datetime import datetime
 
 def index(request):
     return HttpResponse("Bienvenido a Chronos App:)")
@@ -22,13 +23,13 @@ def task_list(request):
         try:
             tasks = TaskController.filter_by_params(request.query_params)
         except Exception as e:
-            return Response({"message":"Estado invalido"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"message":str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         serializer = TaskSerializer(tasks, many=True)
         return Response(serializer.data)
 
     elif request.method == 'POST':
-        serializer = TaskSerializer(data=request.data)
+        serializer = TaskCreationSerializer(data=request.data)
         if serializer.is_valid():
             try:
                 serializer.save()
@@ -50,8 +51,25 @@ def task_detail(request, code):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        serializer = TaskSerializer(task)
-        return Response(serializer.data)
+        records = TimeRecord.records.filter(task_id=task.code)
+        totalTime = 0
+        workingTime = 0
+
+        response = {}
+
+        for record in records:
+            totalTime += record.time_elapsed()
+            workingTime += record.working_time()
+
+        response['totalTime'] = totalTime
+        response['workingTime'] = workingTime
+        response['code'] = task.code
+        response['title'] = task.title
+        response['state'] = task.state
+        response['description'] = task.description
+        response['totalRecords'] = len(records)
+
+        return Response(response)
 
     elif request.method == 'PUT':
         serializer = TaskSerializer(task, data=request.data)
@@ -82,18 +100,15 @@ def start_task(request, code):
     if request.method == 'GET':
         try:
 
-            hours = request.query_params.get('hours', 0)
-            minutes = request.query_params.get('minutes', 0)
-            seconds = request.query_params.get('seconds', 0)
-            year =  int(request.query_params.get('year', 0))
+            year = int(request.query_params.get('year', 0))
             month = int(request.query_params.get('month', 0))
             day = int(request.query_params.get('day', 0))
             aDate = date(year, month, day)
 
-            stime = time(int(hours), int(minutes), int(seconds))
             wc = WorkCycle()
             rc = RestCycle()
             task.start()
+            stime = datetime.now().time()
             time_record = TimeRecord(task=task, date=aDate, startTime=stime, workCycle=wc, restCycle=rc)
             wc.save()
             rc.save()
@@ -105,22 +120,25 @@ def start_task(request, code):
 
 
 @api_view(['GET'])
-def pause_task(request, tr_code):
+def pause_task(request, code):
 
     try:
-        time_record = TimeRecord.records.filter(code=tr_code)
-    except Task.DoesNotExist:
+        tr_code = int(request.query_params.get('trcode', None))
+        time_record = TimeRecord.records.filter(code=tr_code).first()
+    except TimeRecord.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
         try:
             time_record.stop()
+            time_record.save()
         except Exception as e:
             return Response({"message": str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response(status=status.HTTP_200_OK)
 
+
+
 @api_view(['GET'])
-@api_view
 def resume_task(request, code):
     try:
         task = Task.tasks.filter(code=code).first()
@@ -129,42 +147,43 @@ def resume_task(request, code):
 
     if request.method == 'GET':
         try:
-            hours = request.query_params.get('hours', 0)
-            minutes = request.query_params.get('minutes', 0)
-            seconds = request.query_params.get('seconds', 0)
             year = int(request.query_params.get('year', 0))
             month = int(request.query_params.get('month', 0))
             day = int(request.query_params.get('day', 0))
             aDate = date(year, month, day)
-
-            stime = time(int(hours), int(minutes), int(seconds))
             wc = WorkCycle()
             rc = RestCycle()
-            task.start()
+            stime=datetime.now().time()
+
             time_record = TimeRecord(task=task, date=aDate, startTime=stime, workCycle=wc, restCycle=rc)
             wc.save()
             rc.save()
             time_record.save()
-            task.save()
         except Exception as e:
             return Response({"message": str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response({"tr_code": time_record.code}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
-def stop_task(request, code, tr_code):
+def stop_task(request, code):
 
     try:
+        tr_code = request.query_params.get('trcode', None)
         task = Task.tasks.filter(code=code).first()
-        time_record = TimeRecord.records.filter(code=tr_code)
+        if tr_code is not None and int(tr_code) is not '-1':
+            tr_code = int(tr_code)
+            time_record = TimeRecord.records.filter(code=tr_code).first()
+        else:
+            time_record = None
     except Task.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
         try:
-            time_record.ustop()
+            if time_record is not None:
+                time_record.ustop()
+                time_record.save()
             task.finalize()
-            time_record.save()
             task.save()
         except Exception as e:
             return Response({"message": str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)

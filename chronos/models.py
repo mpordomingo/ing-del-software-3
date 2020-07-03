@@ -1,5 +1,5 @@
 from django.db import models
-import time
+import datetime
 
 
 class Task(models.Model):
@@ -26,7 +26,7 @@ class Task(models.Model):
         super().save(*args, **args)
 
     def finalize(self):
-        assert self.state == "To Do", "La tarea debe estar en estado 'In Progress'"
+        assert self.state == "In Progress", "La tarea debe estar en estado 'In Progress'"
         self.state = "Done"
 
     def start(self):
@@ -68,23 +68,29 @@ class TimeRecord(models.Model):
         super().save(*args, **args)
 
     def start(self):
-        self.startTime = time.time()
+        self.startTime = datetime.now().time()
 
     def stop(self):
         assert self.endTime is None, "Este registro de tiempo ya fue finalizado."
-        self.endTime = time.time()
+        self.endTime = datetime.now().time()
 
     def ustop(self):
         if self.endTime is None:
-            self.endTime = time.time()
+            self.endTime = datetime.now().time()
 
     def time_elapsed(self):
-        return self.endTime - self.startTime
+        if (self.endTime is None) and (self.startTime is None):
+            return 0
+
+        dend = datetime.datetime.combine(datetime.date.today(), self.endTime)
+        dstart = datetime.datetime.combine(datetime.date.today(), self.startTime)
+        res = dend-dstart
+        return res.total_seconds()
 
     def working_time(self):
         total = self.time_elapsed()
         totalCycle = self.restCycle.time + self.workCycle.time
-        ratio = self.restCycle.time / totalCycle
+        ratio = self.workCycle.time / totalCycle
         return total * ratio
 
     def resting_time(self):

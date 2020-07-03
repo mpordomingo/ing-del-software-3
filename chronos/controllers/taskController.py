@@ -40,7 +40,7 @@ class TaskController:
         title = params.get('title', '')
         description = params.get('description', '')
         state = params.get('state', None)
-        code = params.get('code', None)
+        code = params.get('code', '')
 
         tasks = Task.tasks.filter(title__icontains=title).filter(description__icontains=description)
 
@@ -48,7 +48,7 @@ class TaskController:
             assert state in Task.valid_states(), "El estado no es valido."
             tasks = tasks.filter(state=state)
 
-        if code is not None:
+        if code is not '':
             tasks = tasks.filter(code=code)
 
         return tasks
