@@ -48,7 +48,7 @@ class TaskController:
             assert state in Task.valid_states(), "El estado no es valido."
             tasks = tasks.filter(state=state)
 
-        if code is not '':
+        if code is not "":
             tasks = tasks.filter(code=code)
 
         return tasks
