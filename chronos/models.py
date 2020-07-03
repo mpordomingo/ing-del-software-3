@@ -74,6 +74,10 @@ class TimeRecord(models.Model):
         assert self.endTime is None, "Este registro de tiempo ya fue finalizado."
         self.endTime = time.time()
 
+    def ustop(self):
+        if self.endTime is None:
+            self.endTime = time.time()
+
     def time_elapsed(self):
         return self.endTime - self.startTime
 
