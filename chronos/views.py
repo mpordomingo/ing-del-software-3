@@ -5,7 +5,8 @@ from chronos.models import *
 from chronos.serializers import TaskSerializer
 from django.http import HttpResponse
 from chronos.controllers.taskController import TaskController
-
+from datetime import time
+from datetime import date
 
 def index(request):
     return HttpResponse("Bienvenido a Chronos App:)")
@@ -81,16 +82,46 @@ def start_task(request, code):
     if request.method == 'GET':
         try:
 
-            time_record = TimeRecord(task=task, cycle=WorkCycle())
+            hours = request.query_params.get('hours', 0)
+            minutes = request.query_params.get('minutes', 0)
+            seconds = request.query_params.get('seconds', 0)
+            year =  int(request.query_params.get('year', 0))
+            month = int(request.query_params.get('month', 0))
+            day = int(request.query_params.get('day', 0))
+            aDate = date(year,month,day)
+
+            stime = time(int(hours), int(minutes), int(seconds))
+            wc = WorkCycle()
+            rc = RestCycle()
+            task.start()
+            time_record = TimeRecord(task=task, date=aDate, startTime=stime, workCycle=wc, restCycle=rc)
+            wc.save()
+            rc.save()
             time_record.save()
+            task.save()
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        return Response({"tr_code": time_record.code}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def pause_task(request, tr_code):
+
+    try:
+        time_record = TimeRecord.records.filter(code=tr_code)
+    except Task.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        try:
+            time_record.stop()
         except Exception as e:
             return Response({"message": str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response(status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
-def pause_task(request, code):
-
+@api_view
+def resume_task(request, code):
     try:
         task = Task.tasks.filter(code=code).first()
     except Task.DoesNotExist:
@@ -98,10 +129,12 @@ def pause_task(request, code):
 
     if request.method == 'GET':
         try:
-            task.pause()
+            date = request.query_params.get('date', None)
+            time_record = TimeRecord(task=task, date=date)
+            time_record.save()
         except Exception as e:
             return Response({"message": str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-        return Response(status=status.HTTP_200_OK)
+        return Response({"tr_code": time_record.code}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -114,7 +147,8 @@ def stop_task(request, code):
 
     if request.method == 'GET':
         try:
-            task.stop()
+            task.finalize()
+            task.save()
         except Exception as e:
             return Response({"message": str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response(status=status.HTTP_200_OK)

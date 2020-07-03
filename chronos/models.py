@@ -1,8 +1,4 @@
 from django.db import models
-from functools import reduce
-
-from threading import Thread
-from time import sleep
 import time
 
 
@@ -20,8 +16,6 @@ class Task(models.Model):
 
     tasks = models.Manager()
 
-
-
     @staticmethod
     def valid_states():
         return list(map((lambda x: x[1]), Task.__VALID_STATES__))
@@ -31,36 +25,17 @@ class Task(models.Model):
         assert self.state in self.valid_states(), "El estado especificado no es valido"
         super().save(*args, **args)
 
+    def finalize(self):
+        assert self.state == "To Do", "La tarea debe estar en estado 'In Progress'"
+        self.state = "Done"
 
-def timer(time_record, times):
-    sleep(time)
-    handler(event='FINISH_TIME_RECORD')
-
-
-class Stopwatch(models.Model):
-    recordedTime: float = models.FloatField()
-    initialTime: float = 0
-    initialInactivity: float = 0
-    inactivityTime: float = 0
-
-    def start(self, times):
-        time_thread = Thread(target=timer(times))
-        self.initialTime = time.time()
-
-    def stop(self):
-        now: float = time.time()
-        self.recordedTime = now - self.initialTime - self.inactivityTime
-
-    def pause(self):
-        self.initialInactivity = time.time()
-
-    def resume(self):
-        now: float = time.time()
-        self.inactivityTime += now - self.initialInactivity
+    def start(self):
+        assert self.state == "To Do", "La tarea debe estar en estado 'To Do'"
+        self.state = "In Progress"
 
 
 class Cycle(models.Model):
-    time = models.FloatField()
+    totalTime = models.FloatField(null=True)
 
 
 class WorkCycle(Cycle):
@@ -70,42 +45,46 @@ class WorkCycle(Cycle):
 class RestCycle(Cycle):
     time = models.FloatField(default=5)
 
-class Handler(models.Model):
-    timer = models.OneToOneField(
-        Timer,
-        on_delete=models.CASCADE,
-        primary_key=True,
-    )
+
 class TimeRecord(models.Model):
+    code = models.AutoField(null=False, primary_key=True)
     startTime = models.TimeField()
-    endTime = models.TimeField()
+    endTime = models.TimeField(null=True)
     date = models.DateField()
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
-    cycle = models.OneToOneField(
-        Cycle,
-        on_delete=models.CASCADE,
-        primary_key=True,
+    restCycle = models.OneToOneField(
+        RestCycle,
+        on_delete=models.CASCADE
     )
-    stopwatch = models.OneToOneField(
-        Stopwatch,
-        on_delete=models.CASCADE,
-        primary_key=True,
+    workCycle = models.OneToOneField(
+        WorkCycle,
+        on_delete=models.CASCADE
     )
-    handler = models.OneToOneField(
-        Handler,
-        on_delete=models.CASCADE,
-        primary_key=True,
-    )
-    timer_thread = Thread(target=timer(handler, cycle.time))
+
+    records = models.Manager()
+
+    def save(self, *arg, **args):
+        assert self.task.state != "Done", "La tarea se ha finalizado. "
+        super().save(*args, **args)
 
     def start(self):
-        self.timer_thread.start()
-
-    def pause(self):
-        self.timer_thread.
+        self.startTime = time.time()
 
     def stop(self):
-        self.stopwatch.stop()
+        assert self.endTime is None, "Este registro de tiempo ya fue finalizado."
+        self.endTime = time.time()
 
+    def time_elapsed(self):
+        return self.endTime - self.startTime
 
+    def working_time(self):
+        total = self.time_elapsed()
+        totalCycle = self.restCycle.time + self.workCycle.time
+        ratio = self.restCycle.time / totalCycle
+        return total * ratio
 
+    def resting_time(self):
+        total = self.timeElapsed()
+        totalCycle = self.restCycle.time + self.workCycle.time
+        ratio = self.restCycle.time / totalCycle
+        return total * ratio
