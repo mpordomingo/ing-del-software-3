@@ -1,7 +1,5 @@
 from django.db import models
-from functools import reduce
-
-import time
+import datetime
 
 
 class Task(models.Model):
@@ -27,29 +25,76 @@ class Task(models.Model):
         assert self.state in self.valid_states(), "El estado especificado no es valido"
         super().save(*args, **args)
 
-
-class Stopwatch(models.Model):
-    recordedTime: float = models.FloatField()
-    initialTime: float = 0
-    initialInactivity: float = 0
-    inactivityTime: float = 0
+    def finalize(self):
+        assert self.state == "In Progress", "La tarea debe estar en estado 'In Progress'"
+        self.state = "Done"
 
     def start(self):
-        self.initialTime = time.time()
+        assert self.state == "To Do", "La tarea debe estar en estado 'To Do'"
+        self.state = "In Progress"
 
-    def stop(self):
-        now: float = time.time()
-        self.recordedTime = now - self.initialTime - self.inactivityTime
 
-    def pause(self):
-        self.initialInactivity = time.time()
+class Cycle(models.Model):
+    totalTime = models.FloatField(null=True)
 
-    def resume(self):
-        now: float = time.time()
-        self.inactivityTime += now - self.initialInactivity
+
+class WorkCycle(Cycle):
+    time = models.FloatField(default=25)
+
+
+class RestCycle(Cycle):
+    time = models.FloatField(default=5)
 
 
 class TimeRecord(models.Model):
+    code = models.AutoField(null=False, primary_key=True)
     startTime = models.TimeField()
-    endTime = models.TimeField()
+    endTime = models.TimeField(null=True)
     date = models.DateField()
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    restCycle = models.OneToOneField(
+        RestCycle,
+        on_delete=models.CASCADE
+    )
+    workCycle = models.OneToOneField(
+        WorkCycle,
+        on_delete=models.CASCADE
+    )
+
+    records = models.Manager()
+
+    def save(self, *arg, **args):
+        assert self.task.state != "Done", "La tarea se ha finalizado. "
+        super().save(*args, **args)
+
+    def start(self):
+        self.startTime = datetime.now().time()
+
+    def stop(self):
+        assert self.endTime is None, "Este registro de tiempo ya fue finalizado."
+        self.endTime = datetime.now().time()
+
+    def ustop(self):
+        if self.endTime is None:
+            self.endTime = datetime.now().time()
+
+    def time_elapsed(self):
+        if (self.endTime is None) and (self.startTime is None):
+            return 0
+
+        dend = datetime.datetime.combine(datetime.date.today(), self.endTime)
+        dstart = datetime.datetime.combine(datetime.date.today(), self.startTime)
+        res = dend-dstart
+        return res.total_seconds()
+
+    def working_time(self):
+        total = self.time_elapsed()
+        totalCycle = self.restCycle.time + self.workCycle.time
+        ratio = self.workCycle.time / totalCycle
+        return total * ratio
+
+    def resting_time(self):
+        total = self.timeElapsed()
+        totalCycle = self.restCycle.time + self.workCycle.time
+        ratio = self.restCycle.time / totalCycle
+        return total * ratio
