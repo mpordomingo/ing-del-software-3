@@ -11,7 +11,7 @@ class Task(models.Model):
 
     code = models.AutoField(null=False, primary_key=True)
     title = models.CharField(null=False, blank=False, max_length=255)
-    description = models.CharField(default="", null=False, max_length=255)
+    description = models.CharField(default="", null=True, max_length=255)
     state = models.CharField(default="To Do", max_length=15, choices=__VALID_STATES__)
 
     tasks = models.Manager()
@@ -21,8 +21,6 @@ class Task(models.Model):
         return list(map((lambda x: x[1]), Task.__VALID_STATES__))
 
     def save(self, *arg, **args):
-        assert self.title, "Se debe especificar un titulo para la tarea."
-        assert self.state in self.valid_states(), "El estado especificado no es valido"
         super().save(*args, **args)
 
     def finalize(self):
@@ -94,7 +92,7 @@ class TimeRecord(models.Model):
         return total * ratio
 
     def resting_time(self):
-        total = self.timeElapsed()
+        total = self.time_elapsed()
         totalCycle = self.restCycle.time + self.workCycle.time
         ratio = self.restCycle.time / totalCycle
         return total * ratio

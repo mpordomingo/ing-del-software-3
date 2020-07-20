@@ -1,4 +1,4 @@
-from chronos.models import Task
+from chronos.models import Task, TimeRecord
 
 
 class TaskController:
@@ -42,6 +42,8 @@ class TaskController:
         state = params.get('state', None)
         code = params.get('code', '')
 
+        results = []
+
         tasks = Task.tasks.filter(title__icontains=title).filter(description__icontains=description)
 
         if state is not None:
@@ -51,4 +53,23 @@ class TaskController:
         if code is not "":
             tasks = tasks.filter(code=code)
 
-        return tasks
+        for task in tasks:
+            responseTask = {}
+            time_records = TimeRecord.records.filter(task_id=task.code)
+            totalTime = 0
+            workingTime = 0
+
+            for record in time_records:
+                totalTime += record.time_elapsed()
+                workingTime += record.working_time()
+
+            responseTask['totalTime'] = totalTime
+            responseTask['workingTime'] = workingTime
+            responseTask['code'] = task.code
+            responseTask['title'] = task.title
+            responseTask['state'] = task.state
+            responseTask['description'] = task.description
+            responseTask['totalRecords'] = len(time_records)
+            results.append(responseTask)
+
+        return results

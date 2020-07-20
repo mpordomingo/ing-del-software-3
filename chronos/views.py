@@ -23,10 +23,11 @@ def task_list(request):
         try:
             tasks = TaskController.filter_by_params(request.query_params)
         except Exception as e:
-            return Response({"message":str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        serializer = TaskSerializer(tasks, many=True)
-        return Response(serializer.data)
+        if len(tasks) == 0:
+            return Response({"results": "SIN_RESULTADOS", "message": "No se encontraron resultados."})
+        return Response(tasks)
 
     elif request.method == 'POST':
         serializer = TaskCreationSerializer(data=request.data)
@@ -37,7 +38,8 @@ def task_list(request):
                 return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"result": "ERROR", "message": "PARAMETROS_NO_VALIDOS", "errors": serializer.errors},
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
@@ -45,11 +47,14 @@ def task_detail(request, code):
     """
     Retrieve, update or delete a code task.
     """
-    try:
-        task = Task.tasks.filter(code=code).first()
-    except Task.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
 
+    tasks = Task.tasks.filter(code=code)
+    if tasks.count() == 0:
+        return Response({"message": "404. Tarea no encontrada."}, status=status.HTTP_404_NOT_FOUND)
+    elif tasks.count() != 1:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    task = tasks.first()
     if request.method == 'GET':
         records = TimeRecord.records.filter(task_id=task.code)
         totalTime = 0
@@ -135,7 +140,6 @@ def pause_task(request, code):
         except Exception as e:
             return Response({"message": str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response(status=status.HTTP_200_OK)
-
 
 
 @api_view(['GET'])
