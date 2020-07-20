@@ -27,7 +27,7 @@ def task_list(request):
 
         if len(tasks) == 0:
             return Response({"results": "SIN_RESULTADOS", "message": "No se encontraron resultados."})
-        return Response(tasks)
+        return Response({'results':  str(len(tasks)), 'tasks': tasks})
 
     elif request.method == 'POST':
         serializer = TaskCreationSerializer(data=request.data)
