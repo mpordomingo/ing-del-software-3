@@ -1,6 +1,6 @@
 from django.db import models
 import datetime
-
+import math
 
 class Task(models.Model):
     __VALID_STATES__ = [
@@ -37,11 +37,11 @@ class Cycle(models.Model):
 
 
 class WorkCycle(Cycle):
-    time = models.FloatField(default=25)
+    time = models.FloatField(default=1500)
 
 
 class RestCycle(Cycle):
-    time = models.FloatField(default=5)
+    time = models.FloatField(default=300)
 
 
 class TimeRecord(models.Model):
@@ -77,22 +77,39 @@ class TimeRecord(models.Model):
             self.endTime = datetime.datetime.now().time()
 
     def time_elapsed(self):
-        if (self.endTime is None) or (self.startTime is None):
+        if self.startTime is None:
             return 0
+        if self.endTime is None:
+            end_time = datetime.datetime.now().time()
+        else:
+            end_time = self.endTime
 
-        dend = datetime.datetime.combine(datetime.date.today(), self.endTime)
+        dend = datetime.datetime.combine(datetime.date.today(), end_time)
         dstart = datetime.datetime.combine(datetime.date.today(), self.startTime)
         res = dend-dstart
         return res.total_seconds()
 
     def working_time(self):
-        total = self.time_elapsed()
-        totalCycle = self.restCycle.time + self.workCycle.time
-        ratio = self.workCycle.time / totalCycle
-        return total * ratio
+        total_cycle = self.total_cycle_time()
+        cycles = self.complete_cycles()
+        rest = self.time_elapsed() % total_cycle
+
+        if rest >= self.workCycle.time:
+            extra = self.workCycle.time
+        else:
+            extra = rest
+
+        return cycles * self.workCycle.time + extra
+
+    def not_finished(self):
+        return self.endTime is None
 
     def resting_time(self):
-        total = self.time_elapsed()
-        totalCycle = self.restCycle.time + self.workCycle.time
-        ratio = self.restCycle.time / totalCycle
-        return total * ratio
+        return self.time_elapsed() - self.working_time()
+
+    def complete_cycles(self):
+        total_cycle = self.total_cycle_time()
+        return math.floor(self.time_elapsed() / total_cycle)
+
+    def total_cycle_time(self):
+        return self.workCycle.time + self.restCycle.time

@@ -9,6 +9,7 @@ from time import time
 from datetime import date
 from datetime import datetime
 
+
 def index(request):
     return HttpResponse("Bienvenido a Chronos App:)")
 
@@ -59,10 +60,12 @@ def task_detail(request, code):
         records = TimeRecord.records.filter(task_id=task.code)
         totalTime = 0
         workingTime = 0
-
+        ongoingRecordId = -1
         response = {}
 
         for record in records:
+            if record.not_finished():
+                ongoingRecordId = record.code
             totalTime += record.time_elapsed()
             workingTime += record.working_time()
 
@@ -72,6 +75,7 @@ def task_detail(request, code):
         response['title'] = task.title
         response['state'] = task.state
         response['description'] = task.description
+        response['ongoingRecordCode'] = ongoingRecordId
         response['totalRecords'] = len(records)
 
         return Response(response)
@@ -125,7 +129,7 @@ def start_task(request, code):
 
 
 @api_view(['GET'])
-def pause_task(request, code):
+def pause_task(request,code):
 
     try:
         tr_code = int(request.query_params.get('trcode', None))
@@ -151,6 +155,10 @@ def resume_task(request, code):
 
     if request.method == 'GET':
         try:
+            started_record = TimeRecord.records.filter(task=task, endTime__isnull=True)
+            if started_record.count() == 1:
+                raise Exception("La tarea esta corriendo. Debe pausarse primero.")
+
             year = int(request.query_params.get('year', 0))
             month = int(request.query_params.get('month', 0))
             day = int(request.query_params.get('day', 0))
