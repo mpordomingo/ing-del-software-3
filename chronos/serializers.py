@@ -61,6 +61,12 @@ class TaskSerializer(serializers.Serializer):
 
         return value
 
+    def validate_description(self, value):
+        if value is not None and len(value) > 1000:
+            raise serializers.ValidationError("La descripcion no debe superar los 1000 caracteres.")
+
+        return value
+
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title', instance.title)
         instance.description = validated_data.get('description', instance.description)
