@@ -47,7 +47,6 @@ class TaskSerializer(serializers.Serializer):
     title = serializers.CharField(required=False)
     description = serializers.CharField(required=False)
     state = serializers.CharField(required=False)
-    code = serializers.IntegerField(error_messages=code_defaults)
 
 
     def validate_title(self, value):
@@ -61,10 +60,6 @@ class TaskSerializer(serializers.Serializer):
             raise serializers.ValidationError("El estado especificado no es valido. ")
 
         return value
-
-    def validate_description(self, value):
-        if value is not None and len(value) > 1000:
-            raise serializers.ValidationError("La descripcion no debe superar los 1000 caracteres.")
 
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title', instance.title)
