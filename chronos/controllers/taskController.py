@@ -58,8 +58,11 @@ class TaskController:
             time_records = TimeRecord.records.filter(task_id=task.code)
             totalTime = 0
             workingTime = 0
+            ongoing = False
 
             for record in time_records:
+                if record.not_finished():
+                    ongoing = True
                 totalTime += record.time_elapsed()
                 workingTime += record.working_time()
 
@@ -70,6 +73,7 @@ class TaskController:
             responseTask['state'] = task.state
             responseTask['description'] = task.description
             responseTask['totalRecords'] = len(time_records)
+            responseTask['ongoing'] = ongoing
             results.append(responseTask)
 
         return results
